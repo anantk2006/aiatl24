@@ -51,28 +51,26 @@ class SeaLevel:
 class ImgSat:
     def __init__(self):
         ee.Initialize(project = "direct-plasma-379617")
-        self.collection = ee.ImageCollection('LANDSAT/LC08/C02/T1_L2').filterDate('2014-10-27', '2024-10-27')
-    
+        self.landsat = ee.ImageCollection('LANDSAT/LC08/C02/T1_L2').filterDate('2014-10-27', '2024-10-27').filter(ee.Filter.lt('CLOUD_COVER', 10))
     def query(self, lat, long):
         bbox = ee.Geometry.BBox(long - 0.05, lat - 0.05, long + 0.05, lat + 0.05)
-        collection = self.collection.filterBounds(bbox).filter(ee.Filter.lt('CLOUD_COVER', 10))
+        landsat_collection = self.landsat.filterBounds(bbox)
         video_args = {
             'dimensions': 480,
+            'region': bbox,
             'framesPerSecond': 2,
-            'region': bbox, 
-            'bands': ['SR_B4', 'SR_B3', 'SR_B2'],
+            'bands': ['SR_B4', 'SR_B3', 'SR_B2']
         }
-        video_url = collection.getVideoThumbURL(video_args)
-        return video_url
+        video = landsat_collection.getVideoThumbURL(video_args)
+        return video  
         
 
 
+
+        
+        
+
 if __name__ == "__main__":
-    # import time
-    # sl = SeaLevel()
-    # t0 = time.time()
-    # print(sl.query(35.2890, -77.9530))
-    # print(time.time() - t0)
 
     isat = ImgSat()
     print(isat.query(26.5624, -80.044))
