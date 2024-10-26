@@ -12,6 +12,7 @@
 /build
 
 # api key
+public/index.html
 .env
 
 # misc
