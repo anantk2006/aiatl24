@@ -58,7 +58,7 @@ class ImgSat:
         video_args = {
             'dimensions': 480,
             'region': bbox,
-            'framesPerSecond': 2,
+            'framesPerSecond': 5,
             'bands': ['SR_B4', 'SR_B3', 'SR_B2']
         }
         video = landsat_collection.getVideoThumbURL(video_args)
