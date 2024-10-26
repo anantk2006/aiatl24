@@ -6,9 +6,23 @@ import numpy as np
 from geopy.distance import geodesic
 from numba import jit
 import json
+from fastapi.middleware.cors import CORSMiddleware
 
-# Initialize FastAPI app
 app = FastAPI()
+
+# Allow CORS for specific origins
+origins = [
+    "http://localhost:3000",  # Your frontend React app
+    "http://127.0.0.1:3000",  # Also allow requests from this address
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Load and preprocess the data when the app starts
 cols = ['Id', 'Name', 'Date', 'Time', 'RecordID', 'Status', 'Lat', 'Lon',
@@ -122,6 +136,7 @@ class LocationInput(BaseModel):
 
 # Load data at startup
 df = load_data()
+idx = 0
 
 # API endpoint to find hurricanes
 @app.post("/find_hurricanes")
@@ -133,18 +148,25 @@ def find_hurricanes(location: LocationInput):
     top_5_ids = (
         intersecting_df.groupby('Id')
         .agg(Name=('Name', 'max'), Min_Distance_km=('Distance_km', 'min'), Max_Wind=('MaxWind', 'max'))
-        .sort_values(by='Max_Wind')
+        .sort_values(by='Min_Distance_km')
         .head(5)
         .index.tolist()
     )
 
     matching_rows_df = df[df['Id'].isin(top_5_ids)]
+    global idx
+    idx = -1
+    def enum():
+        global idx
+        idx += 1
+        return idx
+    colors = ['#343131','#A04747','#D8A25E','#EEDF7A','#E2F1E7']
     hurricanes_json = {
         hurricane_id: {
             'name': group['Name'].iloc[0],
             'maxSpeed': group['MaxWind'].max(),
-            'color': 'red' if group['MaxWind'].max() >= 130 else 'orange' if group['MaxWind'].max() >= 90 else 'yellow',
-            'points': [{'lat': row['Lat'], 'lng': row['Lon'], 'r': row['MaxRadius_km']} for _, row in group.iterrows()]
+            'color': colors[enum()],
+            'points': [{'lat': row['Lat'], 'lng': row['Lon'], 'r': row['MaxRadius_km'], 'speed': row['MaxWind']} for _, row in group.iterrows()]
         }
         for hurricane_id, group in matching_rows_df.groupby('Id')
     }

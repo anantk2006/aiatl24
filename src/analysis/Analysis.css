@@ -6,6 +6,34 @@
     flex-direction: column;
 }
 
+/* Analysis.css */
+
+.info-window {
+    background-color: rgb(30, 30, 30, 0.9); /* Dark background with transparency */
+    color: white; /* Text color */
+    padding: 5px; /* Reduced padding */
+    border-radius: 5px; /* Rounded corners */
+    font-family: 'Arial', sans-serif; /* Modern font */
+}
+
+.info-window h3 {
+    color: white; /* Blue color for heading */
+    margin: 0; /* Remove default margin */
+    font-weight: bold; /* Bold text */
+}
+
+.info-window p {
+    margin: 5px 0 0; /* Margin for the paragraph */
+}
+
+/* Ensure no default margins or padding interfere */
+.google-maps-info-window {
+    margin: 0 !important; /* Remove default margin */
+    padding: 0 !important; /* Remove default padding */
+    background-color: transparent !important; /* Make sure background is transparent */
+}
+
+
 .analysis-container {
     display: flex; /* Use flexbox for a two-column layout */
     background-color: #1e1e1e; /* Dark background */
